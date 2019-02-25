@@ -13,6 +13,11 @@
 <body>
 
     <script>
+        // Best UI for increasing or decreasing from a node?
+        // A nice pulsing animation of some kind to show "taking" or "giving"
+
+
+
         const w = 600;
         const h = 600;
         let graph;
@@ -52,18 +57,61 @@
                         id: i,
                         x: buffer + random(w - buffer * 2),
                         y: buffer + random(h - buffer * 2),
-                        fill: 'green'
+                        fill: 'green',
+                        value: -2 + floor(random(4))
                     });
                 }
 
+                // Want to avoid duplicates:
                 for (let i = 0; i < numConnections; i++) {
+                    // We could set first to be 0 to numNodes - 1, then force second to be bigger.
+                    // But i think that would bias towards larger pairs being connected.
+                    // I guess that doesn't really matter?
+                    // const first = floor(random(numNodes - 1));
+                    
+                    // let second = first + 1+ floor(random(first));
+
+                    const first = floor(random(numNodes));
+                    let second = floor(random(numNodes));
+
+                    while (this.haveConnection(first, second) || first === second) {
+                        second = floor(random(numNodes));
+                    }
+                    
+                    // while (first >= second) {
+                    //     second = floor(random(numNodes));
+                    // }
                     this.connections.push([
-                        floor(random(numNodes)),
-                        floor(random(numNodes))
+                        first,
+                        second
                     ]);
                 }
+
                 console.log(this.connections);
                 console.log(this.nodes);
+            }
+
+            haveConnection(a, b) {
+                let result = false;
+                for (let i=0; i < this.connections.length; i++) {
+                    const conn = this.connections[i];
+                    if ((conn[0] === a && conn[1] === b) || (conn[1] === a && conn[0] === b)) {
+                        result = true;
+                        break;
+                    }
+                }
+                // console.log(a, b, this.connections, result);
+                return result;
+            }
+
+            getConnectedNodes(id) {
+                const connections = this.connections.filter(connect => connect[0] === id || connect[1] === id);
+                const result = [];
+                connections.forEach(connect => {
+                    let notId = connect[0] === id ? connect[1] : connect[0];
+                    result.push(notId);
+                });
+                return result.map(id => this.getNode(id));
             }
 
             getNode(id) {
@@ -77,6 +125,12 @@
                     fill(node.fill);
                     stroke(node.fill);
                     circle(node.x, node.y, 8);
+                    stroke('black');
+                    fill('black');
+                    const xOff = node.x > w/2 ? 15 : -15;
+                    const yOff = node.y > h/2 ? 15 : -15;
+
+                    text(node.value, node.x + xOff, node.y + yOff);
                 });
 
                 this.connections.forEach(connection => {
@@ -84,6 +138,8 @@
                     line(this.getNode(connection[0]).x, this.getNode(connection[0]).y,
                         this.getNode(connection[1]).x, this.getNode(connection[1]).y)
                 });
+
+                // Also show value
             }
         }
     </script>
