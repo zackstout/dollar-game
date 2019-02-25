@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Dollar Game</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/p5.js"></script>
+
+</head>
+
+<body>
+
+    <script>
+        const w = 600;
+        const h = 600;
+        let graph;
+
+        function setup() {
+
+            createCanvas(w, h);
+            background(200);
+            graph = new Graph(5, 5);
+            graph.show();
+        }
+
+        function draw() {
+            background(200); 
+            graph.show();
+        }
+
+        function mousePressed() {
+            console.log(mouseX);
+            for (let i = 0; i < graph.nodes.length; i++) {
+                if (dist(mouseX, mouseY, graph.nodes[i].x, graph.nodes[i].y) < 8) {
+                    console.log('got one', graph.nodes[i]);
+                    graph.nodes[i].fill = graph.nodes[i].fill === 'green' ? 'goldenrod' : 'green';
+                    break;
+                }
+            }
+        }
+
+        class Graph {
+            constructor(numNodes, numConnections) {
+                this.nodes = [];
+                this.connections = [];
+
+                for (let i = 0; i < numNodes; i++) {
+                    const buffer = 50;
+                    this.nodes.push({
+                        id: i,
+                        x: buffer + random(w - buffer * 2),
+                        y: buffer + random(h - buffer * 2),
+                        fill: 'green'
+                    });
+                }
+
+                for (let i = 0; i < numConnections; i++) {
+                    this.connections.push([
+                        floor(random(numNodes)),
+                        floor(random(numNodes))
+                    ]);
+                }
+                console.log(this.connections);
+                console.log(this.nodes);
+            }
+
+            getNode(id) {
+                const node = this.nodes.filter(node => node.id === id)[0];
+                // console.log(node);
+                return node;
+            }
+
+            show() {
+                this.nodes.forEach(node => {
+                    fill(node.fill);
+                    stroke(node.fill);
+                    circle(node.x, node.y, 8);
+                });
+
+                this.connections.forEach(connection => {
+                    stroke('black');
+                    line(this.getNode(connection[0]).x, this.getNode(connection[0]).y,
+                        this.getNode(connection[1]).x, this.getNode(connection[1]).y)
+                });
+            }
+        }
+    </script>
+</body>
+
+</html>
