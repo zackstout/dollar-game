@@ -17,10 +17,16 @@
         // A nice pulsing animation of some kind to show "taking" or "giving"
 
 
+        function fib(x) {
+            if (x === 0) return 1;
+            if (x === 1) return 1;
+            return fib(x - 2) + fib(x - 1);
+        }
 
         const w = 600;
         const h = 600;
         let graph;
+        let lastClicked;
 
         function setup() {
 
@@ -31,16 +37,36 @@
         }
 
         function draw() {
-            background(200); 
+            background(200);
             graph.show();
+        }
+
+        function keyPressed() {
+            // console.log(keyCode);
+            const connected = graph.getConnectedNodes(lastClicked.id);
+
+            // Give:
+            if (keyCode === 70) {
+                // console.log(graph.getConnectedNodes(lastClicked.id));
+                lastClicked.value -= connected.length;
+                connected.forEach(c => c.value++);
+            }
+
+            // Take:
+            if (keyCode === 83) {
+                lastClicked.value += connected.length;
+                connected.forEach(c => c.value--);
+            }
         }
 
         function mousePressed() {
             console.log(mouseX);
             for (let i = 0; i < graph.nodes.length; i++) {
                 if (dist(mouseX, mouseY, graph.nodes[i].x, graph.nodes[i].y) < 8) {
-                    console.log('got one', graph.nodes[i]);
+                    // console.log('got one', graph.nodes[i]);
+                    console.log(graph.getConnectedNodes(i));
                     graph.nodes[i].fill = graph.nodes[i].fill === 'green' ? 'goldenrod' : 'green';
+                    lastClicked = graph.nodes[i];
                     break;
                 }
             }
@@ -62,25 +88,17 @@
                     });
                 }
 
-                // Want to avoid duplicates:
                 for (let i = 0; i < numConnections; i++) {
                     // We could set first to be 0 to numNodes - 1, then force second to be bigger.
                     // But i think that would bias towards larger pairs being connected.
                     // I guess that doesn't really matter?
-                    // const first = floor(random(numNodes - 1));
-                    
-                    // let second = first + 1+ floor(random(first));
-
                     const first = floor(random(numNodes));
                     let second = floor(random(numNodes));
 
                     while (this.haveConnection(first, second) || first === second) {
                         second = floor(random(numNodes));
                     }
-                    
-                    // while (first >= second) {
-                    //     second = floor(random(numNodes));
-                    // }
+
                     this.connections.push([
                         first,
                         second
@@ -93,14 +111,13 @@
 
             haveConnection(a, b) {
                 let result = false;
-                for (let i=0; i < this.connections.length; i++) {
+                for (let i = 0; i < this.connections.length; i++) {
                     const conn = this.connections[i];
                     if ((conn[0] === a && conn[1] === b) || (conn[1] === a && conn[0] === b)) {
                         result = true;
                         break;
                     }
                 }
-                // console.log(a, b, this.connections, result);
                 return result;
             }
 
@@ -115,9 +132,8 @@
             }
 
             getNode(id) {
-                const node = this.nodes.filter(node => node.id === id)[0];
-                // console.log(node);
-                return node;
+                // return this.nodes.filter(node => node.id === id)[0];
+                return this.nodes[id];
             }
 
             show() {
@@ -127,8 +143,8 @@
                     circle(node.x, node.y, 8);
                     stroke('black');
                     fill('black');
-                    const xOff = node.x > w/2 ? 15 : -15;
-                    const yOff = node.y > h/2 ? 15 : -15;
+                    const xOff = node.x > w / 2 ? 15 : -15;
+                    const yOff = node.y > h / 2 ? 15 : -15;
 
                     text(node.value, node.x + xOff, node.y + yOff);
                 });
@@ -139,8 +155,7 @@
                         this.getNode(connection[1]).x, this.getNode(connection[1]).y)
                 });
 
-                // Also show value
-            }
+            } ˇ
         }
     </script>
 </body>
